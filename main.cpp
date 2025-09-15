@@ -5,9 +5,9 @@
 //#include <ctupe.h>
 #include <string.h>
 
-#include "RectangleArray.h"
-#include "BiArray.h"
-#include "PointerArray.h"
+//#include "RectangleArray.h"
+//#include "BiArray.h"
+//#include "PointerArray.h"
 
 /*void PrintBiArray(unsigned char *text, const int size_Y, const int size_X);
 void GetBiArray(FILE *file_ptr, int size_Y, int size_X, unsigned char *text);
@@ -293,9 +293,106 @@ void PrintPointerArray(unsigned char **text, int size_Y) {
 
 }*/
 
+//-----------------------------------------------------------------------------
+
+#define end_of_file
+
+unsigned char* MakeBufferArray(FILE *file_ptr, int *file_size) {
+
+    assert(file_ptr);
+    assert(file_size);
+
+    fseek(file_ptr, SEEK_SET, 0);
+
+    int curr_size = 10;
+    *file_size = 0;
+
+    unsigned char *buffer_ptr = (unsigned char *) calloc(1, 10*sizeof(unsigned char));
+    assert(buffer_ptr);
+
+    int curr_symbol = 0, curr_position = 0;
+
+    while (curr_symbol != EOF) {
+
+        int curr_string_size = 0;
+
+        while (curr_symbol != '\n' && curr_symbol != EOF) {
+
+            if (curr_size <= curr_position) {
+
+                curr_size = curr_size * 2;
+                buffer_ptr = (unsigned char*) realloc(buffer_ptr, curr_size * sizeof(unsigned char));
+
+                assert(buffer_ptr);
+            }
+
+            curr_symbol = fgetc(file_ptr);
+            buffer_ptr[curr_position++] = curr_symbol;
+            fprintf(stderr, "%c", curr_symbol);
+
+            curr_string_size++;
+        }
+
+        if (curr_size <= curr_position) {
+
+            curr_size = curr_size * 2;
+            buffer_ptr = (unsigned char*) realloc(buffer_ptr, curr_size*sizeof(unsigned char));
+            printf("curr size %d curr position %d\n", curr_size, curr_position);
+
+            assert(buffer_ptr);
+        }
+
+        if (curr_symbol == '\n')
+            curr_symbol = '\0';
+
+        buffer_ptr[curr_position++] = '\0';
+        *file_size++;
+    }
+//PrintArr(rectangle_ptr, file_size, longest_string_size); // отладочное
+    if (curr_size <= curr_position + 1) {
+
+        curr_size = curr_size * 2;
+        buffer_ptr = (unsigned char*) realloc(buffer_ptr, curr_size*sizeof(unsigned char));
+
+        assert(buffer_ptr);
+    }
+    curr_symbol = EOF;
+
+    buffer_ptr[++curr_position] =  '`';   // Вот это костыль, чтобы обозначить конец файла
+    fprintf(stderr, "\n\n");              // Наверное стоит хранить адрес конца
+    return buffer_ptr;
+}
+
+void PrintBufferArray(unsigned char *data, int size_Y) {
+
+    assert(data);
+
+    int curr_position = 0;
+
+    while (data[curr_position] != '`') {
+
+        while (data[curr_position] != '\0' && data[curr_position] != '`') {
+
+            fprintf(stderr, "%c", data[curr_position]);
+            curr_position++;
+
+        }
+        if (data[curr_position] != EOF)
+            curr_position++;
+        else
+            break;
+
+        printf("\n");
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+
 int main()
 {
-    FILE *Onegin_ptr = fopen("PushkinOnegin_new.txt", "r");
+    FILE *Onegin_ptr = fopen("C:\\Users\\sonya\\OneDrive\\Documentos\\GitHub\\Onegin\\Array varinats\\PushkinOnegin_new_short.txt", "r");
+    printf("%p", Onegin_ptr);
 
     /*int file_size = StringsFileCount(Onegin_ptr);
     int longest_string_size = FindLongestSring(Onegin_ptr);
@@ -328,11 +425,14 @@ int main()
     unsigned char **pointer_array_ptr = (unsigned char**) calloc(1, 10*sizeof(char *));
     GetPointerArray(Onegin_ptr, pointer_array_ptr, 10); */
 
-    int string_count = 0, longest_string = 0;
-    unsigned char *buffer_ptr = MakeBufferArray(Onegin_ptr, &string_count, &longest_string);
+    int string_count = 1;
+    unsigned char *buffer_ptr = MakeBufferArray(Onegin_ptr, &string_count);
+
+    assert(buffer_ptr);
+
     PrintBufferArray(buffer_ptr, string_count);
 
-
+    free(buffer_ptr);
     fclose(Onegin_ptr);
 
     return 0;
