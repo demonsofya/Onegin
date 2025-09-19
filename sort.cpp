@@ -136,7 +136,6 @@ void BubbleSort_FromBegin(struct StringsInfo *ptr_array, size_t array_size) {
 //printf("curr string is %s AND %s \n", ptr_array[j].string_ptr,  ptr_array[j + 1].string_ptr);
 //printf("curr sizes are %d AND %d \n\n\n", ptr_array[j].string_size, ptr_array[j + 1].string_size);
 
-
             if ((result = strcmp_modified_english(ptr_array[j].string_ptr,  ptr_array[j + 1].string_ptr,
                                                   ptr_array[j].string_size, ptr_array[j + 1].string_size)) < 0) {
 
